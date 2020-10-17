@@ -4,7 +4,9 @@ project('des-finder-seq', 'c',
 
 incdir = include_directories('../common')
 
-sources = ['main.c', '../common/log.c']
+sources = ['main.c',
+           '../common/log.c',
+           '../common/stopwatch.c']
 
 executable('des-finder-seq',
            [sources],
