@@ -1,0 +1,34 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build dictionary generator",
+            "type": "shell",
+            "command": "cd src/dictionary-generator && meson builddir && meson compile -C builddir",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Build sequential project",
+            "type": "shell",
+            "command": "cd src/sequential && meson builddir && meson compile -C builddir",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Build parallel project",
+            "type": "shell",
+            "command": "cd src/parallel && meson builddir && meson compile -C builddir",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Run dictionary generator",
+            "type": "shell",
+            "command": "cd src/dictionary-generator/builddir && ./dictionary-generator",
+            "problemMatcher": []
+        }
+    ]
+}
