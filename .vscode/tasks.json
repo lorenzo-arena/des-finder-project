@@ -29,6 +29,12 @@
             "type": "shell",
             "command": "cd src/dictionary-generator/builddir && ./dictionary-generator",
             "problemMatcher": []
+        },
+        {
+            "label": "Run sequential project",
+            "type": "shell",
+            "command": "cd src/sequential/builddir && ./des-finder-seq",
+            "problemMatcher": []
         }
     ]
 }
