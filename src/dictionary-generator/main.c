@@ -12,6 +12,7 @@
 
 #include "log.h"
 #include "defines.h"
+#include "stopwatch.h"
 
 const char *argp_program_version =
 " 1.0";
@@ -85,6 +86,8 @@ int main(int argc, char *argv[]) {
     FILE *dictionary_file;
     char *generated_list;
     uint32_t pwd_number = 0;
+
+    stopwatch_start();
 
     // Get the input options
     struct arguments arguments;
@@ -164,5 +167,11 @@ int main(int argc, char *argv[]) {
     log_info("Terminated dictionary generation: generated %d passwords!", pwd_number);
 
     free(generated_list);
+
+    stopwatch_stop();
+
+    log_info("Stopwatch stopped: elapsed %u nanoseconds",
+             stopwatch_get_elapsed_nanosec());
+
     return 0;
 }
