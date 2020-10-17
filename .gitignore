@@ -1,0 +1,2 @@
+# Ignore meson build folder
+builddir/
