@@ -13,8 +13,6 @@
 #include "defines.h"
 
 #define DICTIONARY_DIMENSION 1000
-#define OUTPUT_PWD_FILENAME "dictionary.txt"
-#define OUTPUT_FILENAME "dictionary_hash.txt"
 
 char generated_list[DICTIONARY_DIMENSION][PWD_DIMENSION];
 
@@ -35,24 +33,25 @@ bool check_existing(const char to_test[PWD_DIMENSION]) {
 }
 
 int main() {
-    FILE *out_file;
-    FILE *out_pwd_file;
+    FILE *dictionary_hash_file;
+    FILE *dictionary_file;
     // Init the random seed, this should be done at least one time
     srandom(time(NULL));
 
     log_info("Starting dictionary generation..");
 
-    remove(OUTPUT_FILENAME);
+    remove(DICTIONARY_HASH_FILENAME);
+    remove(DICTIONARY_FILENAME);
 
-    out_file = fopen(OUTPUT_FILENAME, "a");
-    out_pwd_file = fopen(OUTPUT_PWD_FILENAME, "a");
+    dictionary_hash_file = fopen(DICTIONARY_HASH_FILENAME, "a");
+    dictionary_file = fopen(DICTIONARY_FILENAME, "a");
 
-    if(out_file == NULL) {
+    if(dictionary_hash_file == NULL) {
         log_error("Cannot open dictionary file!");
         return 1;
     }
 
-    if(out_pwd_file == NULL) {
+    if(dictionary_file == NULL) {
         log_error("Cannot open dictionary file!");
         return 1;
     }
@@ -69,23 +68,23 @@ int main() {
 
         crypt_r(new_pwd, SALT, &data);
 
-        fwrite(new_pwd, 1, PWD_DIMENSION, out_file);
-        fwrite(new_pwd, 1, PWD_DIMENSION, out_pwd_file);
+        fwrite(new_pwd, 1, PWD_DIMENSION, dictionary_hash_file);
+        fwrite(new_pwd, 1, PWD_DIMENSION, dictionary_file);
 
-        fwrite(";", 1, 1, out_file);
-        fwrite(data.output, 1, strnlen(data.output, sizeof(data.output)), out_file);
-        fwrite(";", 1, 1, out_file);
-        fwrite(SALT, 1, strlen(SALT), out_file);
+        fwrite(";", 1, 1, dictionary_hash_file);
+        fwrite(data.output, 1, strnlen(data.output, sizeof(data.output)), dictionary_hash_file);
+        fwrite(";", 1, 1, dictionary_hash_file);
+        fwrite(SALT, 1, strlen(SALT), dictionary_hash_file);
 
-        fwrite("\n", 1, 1, out_file);
-        fwrite("\n", 1, 1, out_pwd_file);
+        fwrite("\n", 1, 1, dictionary_hash_file);
+        fwrite("\n", 1, 1, dictionary_file);
     }
 
-    fwrite("\n", 1, 1, out_file);
-    fwrite("\n", 1, 1, out_pwd_file);
+    fwrite("\n", 1, 1, dictionary_hash_file);
+    fwrite("\n", 1, 1, dictionary_file);
 
-    fclose(out_file);
-    fclose(out_pwd_file);
+    fclose(dictionary_hash_file);
+    fclose(dictionary_file);
 
     log_info("Terminated dictionary generation: generated %d passwords!", DICTIONARY_DIMENSION);
 

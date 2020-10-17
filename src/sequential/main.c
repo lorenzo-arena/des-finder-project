@@ -5,6 +5,9 @@
 
 #include <time.h>
 
+#include "log.h"
+#include "defines.h"
+
 #define SALT "sa"
 
 #define PWD "testtest"
