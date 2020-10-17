@@ -33,7 +33,7 @@
         {
             "label": "Run sequential project",
             "type": "shell",
-            "command": "cd src/sequential/builddir && ./des-finder-seq",
+            "command": "cd src/sequential/builddir && ./des-finder-seq sammA56hAxZYQ sa",
             "problemMatcher": []
         }
     ]
