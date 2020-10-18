@@ -6,7 +6,8 @@ incdir = include_directories('../common')
 
 sources = ['main.c',
            '../common/log.c',
-           '../common/stopwatch.c']
+           '../common/stopwatch.c',
+           '../common/common.c']
 
 executable('des-finder-seq',
            [sources],

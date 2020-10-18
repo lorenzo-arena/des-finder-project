@@ -4,14 +4,12 @@
 #include <stdlib.h>
 #include <argp.h>
 
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
-#include <crypt.h>
-
 #include <time.h>
 
 #include "log.h"
 #include "defines.h"
 #include "stopwatch.h"
+#include "common.h"
 
 const char *argp_program_version =
 " 1.0";
@@ -93,15 +91,12 @@ int process_file(const char *filename, const char *hash, const char *salt)
         if(strnlen(line, line_len) >= PWD_DIMENSION)
         {
             char pwd_to_test[PWD_DIMENSION];
-            struct crypt_data data = { 0x00 };
 
             memcpy(pwd_to_test, line, PWD_DIMENSION);
 
             log_info("Processing pwd: %s", pwd_to_test);
 
-            crypt_r(pwd_to_test, salt, &data);
-
-            if(strncmp(data.output, hash, CRYPT_OUTPUT_SIZE) == 0)
+            if(test_password(pwd_to_test, hash, salt))
             {
                 log_info("PASSWORD FOUND: %s", pwd_to_test);
                 log_info("Exiting..");
