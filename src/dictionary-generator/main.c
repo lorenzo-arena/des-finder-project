@@ -17,37 +17,31 @@
 const char *argp_program_version =
 " 1.0";
 
-struct arguments
-{
+struct arguments {
     char *args[1];                /* the number of passwords to generate */
 };
 
-void set_default_arguments(struct arguments *arguments)
-{
+void set_default_arguments(struct arguments *arguments) {
     arguments->args[0] = "";
 }
 
-static struct argp_option options[] =
-{
+static struct argp_option options[] = {
     {0}
 };
 
-static error_t parse_opt (int key, char *arg, struct argp_state *state)
-{
+static error_t parse_opt (int key, char *arg, struct argp_state *state) {
     struct arguments *arguments = state->input;
 
     switch (key)
     {
         case ARGP_KEY_ARG:
-            if (state->arg_num >= 1)
-            {
+            if (state->arg_num >= 1) {
                 argp_usage(state);
             }
             arguments->args[state->arg_num] = arg;
             break;
         case ARGP_KEY_END:
-            if (state->arg_num < 1)
-            {
+            if (state->arg_num < 1) {
                 argp_usage(state);
             }
             break;
@@ -98,8 +92,7 @@ int main(int argc, char *argv[]) {
         char *next;
         pwd_number = strtol(arguments.args[0], &next, 10);
 
-        if(*next != '\0')
-        {
+        if(*next != '\0') {
             log_error("Given password number not correct!");
             return 1;
         }
@@ -109,8 +102,7 @@ int main(int argc, char *argv[]) {
 
     generated_list = malloc(pwd_number * PWD_DIMENSION);
 
-    if(generated_list == NULL)
-    {
+    if(generated_list == NULL) {
         log_error("Error during password generation!");
         return 1;
     }
@@ -124,12 +116,7 @@ int main(int argc, char *argv[]) {
     dictionary_hash_file = fopen(DICTIONARY_HASH_FILENAME, "a");
     dictionary_file = fopen(DICTIONARY_FILENAME, "a");
 
-    if(dictionary_hash_file == NULL) {
-        log_error("Cannot open dictionary file!");
-        return 1;
-    }
-
-    if(dictionary_file == NULL) {
+    if((dictionary_hash_file == NULL) || (dictionary_file == NULL)) {
         log_error("Cannot open dictionary file!");
         return 1;
     }
