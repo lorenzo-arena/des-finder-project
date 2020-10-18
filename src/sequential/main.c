@@ -143,8 +143,11 @@ int main(int argc, char *argv[]) {
 
     stopwatch_stop();
 
-    log_info("Stopwatch stopped: elapsed %u nanoseconds",
-             stopwatch_get_elapsed_nanosec());
+    struct timespec elapsed = stopwatch_get_elapsed();
+
+    log_info("Stopwatch stopped: elapsed %d seconds and %lu nanoseconds",
+             elapsed.tv_sec,
+             elapsed.tv_nsec);
 
     return 0;
 }
