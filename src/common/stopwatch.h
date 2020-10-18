@@ -1,5 +1,5 @@
-#include <stdint.h>
+#include <time.h>
 
 void stopwatch_start();
 void stopwatch_stop();
-uint32_t stopwatch_get_elapsed_nanosec();
+struct timespec stopwatch_get_elapsed();
