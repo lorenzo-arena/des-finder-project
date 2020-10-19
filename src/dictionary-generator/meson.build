@@ -4,7 +4,9 @@ project('dictionary-generator', 'c',
 
 incdir = include_directories('../common')
 
-sources = ['main.c', '../common/log.c']
+sources = ['main.c',
+           '../common/log.c',
+           '../common/stopwatch.c']
 
 executable('dictionary-generator',
            [sources],
