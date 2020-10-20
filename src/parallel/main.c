@@ -90,6 +90,11 @@ void *test_pwd_set(void *p)
         char pwd[PWD_DIMENSION + 1] = { 0 };
         strncpy(pwd, args->pwd_set[pwd_idx], PWD_DIMENSION);
 
+#ifdef TRACE
+        // The pointer points to the middle of the array..
+        log_info("Processing pwd: %s", pwd);
+#endif
+
         if(test_password(pwd, args->hash, args->salt))
         {
             args->found_pwd = args->pwd_set[pwd_idx];

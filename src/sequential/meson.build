@@ -9,6 +9,8 @@ sources = ['main.c',
            '../common/stopwatch.c',
            '../common/common.c']
 
+# add_global_arguments('-DTRACE=1', language : 'c')
+
 executable('des-finder-seq',
            [sources],
            install : true,

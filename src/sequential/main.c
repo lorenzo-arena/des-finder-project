@@ -94,7 +94,9 @@ int process_file(const char *filename, const char *hash, const char *salt)
 
             memcpy(pwd_to_test, line, PWD_DIMENSION);
 
+#ifdef TRACE
             log_info("Processing pwd: %s", pwd_to_test);
+#endif
 
             if(test_password(pwd_to_test, hash, salt))
             {
