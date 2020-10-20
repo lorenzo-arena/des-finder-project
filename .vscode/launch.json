@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Build and debug dictionary generator",
+            "name": "Build and debug parallel program",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/dictionary-generator/builddir/dictionary-generator",
-            "args": ["10000"],
+            "program": "${workspaceFolder}/src/parallel/builddir/des-finder-parallel",
+            "args": ["sabg6NNpYT3zE", "sa"],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/src/dictionary-generator/builddir",
+            "cwd": "${workspaceFolder}/src/parallel/builddir",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -22,7 +22,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Build dictionary generator",
+            "preLaunchTask": "Build parallel project",
             "miDebuggerPath": "/usr/bin/gdb"
         }
     ]
