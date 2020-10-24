@@ -5,6 +5,8 @@ project('des-finder-parallel', 'c',
 incdir = include_directories('../common')
 
 sources = ['main.c',
+           'queue.c',
+           'processor.c',
            '../common/log.c',
            '../common/stopwatch.c',
            '../common/common.c']
