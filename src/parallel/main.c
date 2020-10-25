@@ -10,6 +10,7 @@
 #include "defines.h"
 #include "stopwatch.h"
 #include "common.h"
+#include "processor.h"
 
 const char *argp_program_version =
 " 1.0";
@@ -68,60 +69,6 @@ static char doc[] =
 "des-finder-seq -- Used to find passwords from a dictionary and an hash and salt.";
 
 static struct argp argp = {options, parse_opt, args_doc, doc, NULL, NULL, NULL};
-
-int process_file(const char *filename, const char *hash, const char *salt)
-{
-    FILE *file = NULL;
-    char *line = NULL;
-    size_t line_len = 0;
-    ssize_t read = 0;
-    bool pwd_found = false;
-
-    file = fopen(filename, "r");
-    if(file == NULL)
-    {
-        log_error("Could't open file: %s", filename);
-        return -1;
-    }
-
-    while(((read = getline(&line, &line_len, file)) != -1) && !pwd_found) {
-        // I need to check the string length as getline seems
-        // to allocate at least 120 bytes by default even for
-        // line containing just '\n'
-        if(strnlen(line, line_len) >= PWD_DIMENSION)
-        {
-            char pwd_to_test[PWD_DIMENSION];
-
-            memcpy(pwd_to_test, line, PWD_DIMENSION);
-
-#ifdef TRACE
-            log_info("Processing pwd: %s", pwd_to_test);
-#endif
-
-            if(test_password(pwd_to_test, hash, salt))
-            {
-                log_info("PASSWORD FOUND: %s", pwd_to_test);
-                log_info("Exiting..");
-                pwd_found = true;
-            }
-        }
-    }
-
-    fclose(file);
-
-    if(line)
-    {
-        free(line);
-    }
-
-    if(!pwd_found)
-    {
-        log_error("Password not found!");
-        return -1;
-    }
-
-    return 0;
-}
 
 int main(int argc, char *argv[]) {
     struct arguments arguments;
