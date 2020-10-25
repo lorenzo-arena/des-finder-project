@@ -19,13 +19,16 @@ const char *argp_program_version =
 
 struct arguments {
     char *args[1];                /* the number of passwords to generate */
+    bool accept_duplicates;
 };
 
 void set_default_arguments(struct arguments *arguments) {
     arguments->args[0] = "";
+    arguments->accept_duplicates = false;
 }
 
 static struct argp_option options[] = {
+    {"accept-duplicates", 'd', "false", 0, "Accept duplicates in generated dictionary", 0},
     {0}
 };
 
@@ -34,6 +37,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state) {
 
     switch (key)
     {
+        case 'd':
+            arguments->accept_duplicates = (strcmp(arg, "true") == 0);
+            break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 1) {
                 argp_usage(state);
@@ -89,6 +95,7 @@ int main(int argc, char *argv[]) {
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     {
+        // This is used to check if the option for number is a number
         char *next;
         pwd_number = strtol(arguments.args[0], &next, 10);
 
@@ -96,6 +103,11 @@ int main(int argc, char *argv[]) {
             log_error("Given password number not correct!");
             return 1;
         }
+    }
+
+    if(arguments.accept_duplicates)
+    {
+        log_info("Overriding duplicates check...");
     }
 
     log_info("Starting dictionary generation..");
@@ -129,7 +141,7 @@ int main(int argc, char *argv[]) {
             for(uint8_t pwd_index = 0; pwd_index < PWD_DIMENSION; pwd_index++) {
                 new_pwd[pwd_index] = random_alnum();
             }
-        } while (check_existing((const char *)new_pwd, (const char *)generated_list, pwd_number));
+        } while (!arguments.accept_duplicates && check_existing((const char *)new_pwd, (const char *)generated_list, pwd_number));
 
         crypt_r(new_pwd, SALT, &data);
 
