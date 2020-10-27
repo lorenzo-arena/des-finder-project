@@ -11,10 +11,6 @@
 #include "log.h"
 #include "structs.h"
 
-#define THREAD_NUM 8
-
-void *data[THREAD_NUM];
-
 result_t result = {
     .found = false,
     .ended = false,
@@ -23,20 +19,9 @@ result_t result = {
     .cond = PTHREAD_COND_INITIALIZER
 };
 
-queue_t queue = {
-    .buffer = data,
-    .capacity = sizeof(data)/sizeof(data[0]),
-    .size = 0,
-    .in = 0,
-    .out = 0,
-    .mutex = PTHREAD_MUTEX_INITIALIZER,
-    .cond_full = PTHREAD_COND_INITIALIZER,
-    .cond_empty = PTHREAD_COND_INITIALIZER
-};
-
 static void unlock_result_mutex(__attribute__ ((unused)) void *arg)
 {
-    __attribute__ ((unused)) int res = pthread_mutex_unlock(&result.mutex);
+    __attribute__ ((unused)) int res = pthread_mutex_unlock(&(((result_t *)arg)->mutex));
 
 #ifdef TRACE
     log_info("Unlock cleanup result: %d", res);
@@ -45,7 +30,7 @@ static void unlock_result_mutex(__attribute__ ((unused)) void *arg)
 
 static void unlock_queue_mutex(__attribute__ ((unused)) void *arg)
 {
-    __attribute__ ((unused)) int res = pthread_mutex_unlock(&queue.mutex);
+    __attribute__ ((unused)) int res = pthread_mutex_unlock(&(((queue_t *)arg)->mutex));
 
 #ifdef TRACE
     log_info("Unlock cleanup result: %d", res);
@@ -73,8 +58,8 @@ void *test_pwd_set(void *queue)
 #endif
 
     // Push the cleanup routines to unlock mutexes
-    pthread_cleanup_push(unlock_result_mutex, NULL);
-    pthread_cleanup_push(unlock_queue_mutex, NULL);
+    pthread_cleanup_push(unlock_result_mutex, &result);
+    pthread_cleanup_push(unlock_queue_mutex, queue);
 
     // TODO : check always the result with the mutex
     pthread_mutex_lock(&result.mutex);
@@ -126,6 +111,7 @@ void *start_processing(void *args)
 #endif
 
     FILE *file = NULL;
+    int execute_close_file = 1;
     int pwd_idx = 0;
     ssize_t read = 0;
     size_t line_len = 0;
@@ -134,14 +120,15 @@ void *start_processing(void *args)
     file = fopen(producer_args->filename, "r");
 
     // Push the cleanup routines to unlock mutexes
-    pthread_cleanup_push(unlock_result_mutex, NULL);
-    pthread_cleanup_push(unlock_queue_mutex, NULL);
+    pthread_cleanup_push(unlock_result_mutex, &result);
+    pthread_cleanup_push(unlock_queue_mutex, producer_args->queue);
 
     // The close file cleanup routine must be pushed after the opening
     pthread_cleanup_push(close_file, file);
 
     if(file == NULL)
     {
+        execute_close_file = 0;
         log_error("Could't open file: %s", producer_args->filename);
     }
     else
@@ -181,7 +168,7 @@ void *start_processing(void *args)
             if(pwd_idx > 0)
             {
                 pwd_idx = 0;
-                queue_push(&queue, arg);
+                queue_push(producer_args->queue, arg);
             }
 
             pthread_mutex_lock(&result.mutex);
@@ -192,22 +179,42 @@ void *start_processing(void *args)
     result.ended = true;
     pthread_mutex_unlock(&result.mutex);
 
-    pthread_cleanup_pop(1);
+    pthread_cleanup_pop(execute_close_file);
     pthread_cleanup_pop(1);
     pthread_cleanup_pop(1);
     pthread_cond_broadcast(&result.cond);
     return NULL;
 }
 
-int process_file(const char *filename, const char *hash, const char *salt)
+int process_file(const char *filename, const char *hash, const char *salt, const unsigned int threads)
 {
+    void **data = (void **)malloc(sizeof(void *) * threads);
+
+    assert(data != NULL);
+
+    // Init the queue struct
+    queue_t queue = {
+        .buffer = data,
+        .capacity = threads,
+        .size = 0,
+        .in = 0,
+        .out = 0,
+        .mutex = PTHREAD_MUTEX_INITIALIZER,
+        .cond_full = PTHREAD_COND_INITIALIZER,
+        .cond_empty = PTHREAD_COND_INITIALIZER
+    };
+
     producer_args_t producer_args = {
         .filename = filename,
         .hash = hash,
-        .salt = salt
+        .salt = salt,
+        .queue = &queue
     };
+
     pthread_t producer;
-    pthread_t consumers[THREAD_NUM];
+    pthread_t *consumers = (pthread_t *)malloc(sizeof(pthread_t) * threads);
+
+    assert(consumers != NULL);
 
     pthread_mutexattr_t result_mutex_att;
     pthread_mutexattr_t queue_mutex_att;
@@ -222,7 +229,7 @@ int process_file(const char *filename, const char *hash, const char *salt)
 
     pthread_create(&producer, NULL, start_processing, &producer_args);
 
-    for(int consumers_idx = 0; consumers_idx < THREAD_NUM; consumers_idx++)
+    for(unsigned int consumers_idx = 0; consumers_idx < threads; consumers_idx++)
     {
         pthread_create(&consumers[consumers_idx], NULL, test_pwd_set, &queue);
     }
@@ -240,7 +247,7 @@ int process_file(const char *filename, const char *hash, const char *salt)
     pthread_cancel(producer);
     pthread_join(producer, NULL);
 
-    for(int consumers_idx = 0; consumers_idx < THREAD_NUM; consumers_idx++)
+    for(unsigned int consumers_idx = 0; consumers_idx < threads; consumers_idx++)
     {
         pthread_cancel(consumers[consumers_idx]);
         pthread_join(consumers[consumers_idx], NULL);
