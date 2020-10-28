@@ -12,7 +12,7 @@ The algorithm used for hashing passwords is one of the first used for storing pa
 
 This project can be built using [meson](https://mesonbuild.com/) and ninja.
 
-To execute a build you need to navigate to the folder "sequential" or "concurrent" and use the following commands:
+To execute a build you need to navigate to the folder "sequential" or "parallel" and use the following commands:
 
 ```bash
 $ meson builddir
