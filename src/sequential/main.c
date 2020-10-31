@@ -18,6 +18,7 @@ struct arguments
 {
     char *args[2];                /* hash and salt */
     char *dictionary_path;        /* Argument for -d */
+    bool stopwatch;
 };
 
 void set_default_arguments(struct arguments *arguments)
@@ -25,11 +26,13 @@ void set_default_arguments(struct arguments *arguments)
     arguments->args[0] = "";
     arguments->args[1] = "";
     arguments->dictionary_path = DICTIONARY_FILENAME;
+    arguments->stopwatch = false;
 }
 
 static struct argp_option options[] =
 {
-    {"dictionary", 'd', DICTIONARY_FILENAME, 0, "Set the dictionary file path", 0},
+    {"dictionary", 'd', "", 0, "Set the dictionary file path", 0},
+    {"stopwatch", 's', 0, 0, "Enable stopwatch usage", 0},
     {0}
 };
 
@@ -40,21 +43,32 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
     switch (key)
     {
         case 'd':
+        {
             arguments->dictionary_path = arg;
             break;
+        }
+        case 's':
+        {
+            arguments->stopwatch = true;
+            break;
+        }
         case ARGP_KEY_ARG:
+        {
             if (state->arg_num >= 2)
             {
                 argp_usage(state);
             }
             arguments->args[state->arg_num] = arg;
             break;
+        }
         case ARGP_KEY_END:
+        {
             if (state->arg_num < 2)
             {
                 argp_usage(state);
             }
             break;
+        }
         default:
         return ARGP_ERR_UNKNOWN;
     }
@@ -101,7 +115,6 @@ int process_file(const char *filename, const char *hash, const char *salt)
             if(test_password(pwd_to_test, hash, salt))
             {
                 log_info("PASSWORD FOUND: %s", pwd_to_test);
-                log_info("Exiting..");
                 pwd_found = true;
             }
         }
@@ -132,19 +145,27 @@ int main(int argc, char *argv[]) {
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
+    if(arguments.stopwatch)
+    {
+        stopwatch_start();
+    }
+
     if(process_file(arguments.dictionary_path, arguments.args[0], arguments.args[1]) != 0)
     {
         log_error("Error during file processing!");
         return 1;
     }
 
-    stopwatch_stop();
+    if(arguments.stopwatch)
+    {
+        stopwatch_stop();
 
-    struct timespec elapsed = stopwatch_get_elapsed();
+        struct timespec elapsed = stopwatch_get_elapsed();
 
-    log_info("Stopwatch stopped: elapsed %d seconds and %lu nanoseconds",
-             elapsed.tv_sec,
-             elapsed.tv_nsec);
+        printf("%ld.%09ld\n",
+            elapsed.tv_sec,
+            elapsed.tv_nsec);
+    }
 
     return 0;
 }
