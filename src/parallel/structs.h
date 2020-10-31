@@ -27,6 +27,7 @@ typedef struct producer_args {
     const char *filename;
     const char *hash;
     const char *salt;
+    queue_t *queue;
 } producer_args_t;
 
 #endif

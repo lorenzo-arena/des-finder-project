@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/src/parallel/builddir/des-finder-parallel",
-            "args": ["sabg6NNpYT3zE", "sa"],
+            "args": ["saLpqprs6OBGs", "sa", "-t", "8"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/src/parallel/builddir",
             "environment": [],
