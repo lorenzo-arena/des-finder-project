@@ -139,8 +139,6 @@ int process_file(const char *filename, const char *hash, const char *salt)
 int main(int argc, char *argv[]) {
     struct arguments arguments;
 
-    stopwatch_start();
-
     set_default_arguments(&arguments);
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
