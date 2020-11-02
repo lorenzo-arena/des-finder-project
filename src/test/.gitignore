@@ -1,0 +1,9 @@
+# dictionary files
+dictionary.txt
+dictionary_hash.txt
+
+# binaries
+des-finder-*
+
+# output file
+output.log
