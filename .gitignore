@@ -1,2 +1,5 @@
 # Ignore meson build folder
 builddir/
+
+# Ignore presentation pdf file
+*.pdf
