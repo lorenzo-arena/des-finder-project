@@ -34,7 +34,9 @@ MEDIUM_POSITIONS_ARRAY=$(seq 10000 2000 200000)
 BIG_POSITIONS_ARRAY=(200000 400000 700000 1000000 3000000 5000000)
 POSITIONS=( ${SMALL_POSITIONS_ARRAY[@]} ${MEDIUM_POSITIONS_ARRAY[@]} ${BIG_POSITIONS_ARRAY[@]} )
 
-MAX_THREADS=$(grep -c ^processor /proc/cpuinfo)
+MAX_THREADS=$((10+$(grep -c ^processor /proc/cpuinfo)))
+
+echo "Testing on $MAX_THREADS threads.."
 
 # Printf header to output file
 printf "POSITION;SEQUENTIAL;" >> $OUTPUT_FILE
